@@ -60,6 +60,9 @@
 // analogous to the top-level functions for the command-line
 // flag set.
 
+// Helm Rock Consulting
+// Patched Golang flag package to export previously hidden io.Writers
+
 package mflag
 
 import (
