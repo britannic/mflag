@@ -280,7 +280,7 @@ type FlagSet struct {
 	formal        map[string]*Flag
 	args          []string // arguments after flags
 	errorHandling ErrorHandling
-	Output        io.Writer // nil means stderr; use out() accessor
+	Output        io.Writer // nil means stderr; use Out() accessor
 }
 
 // A Flag represents the state of a flag.
@@ -307,7 +307,8 @@ func sortFlags(flags map[string]*Flag) []*Flag {
 	return result
 }
 
-func (f *FlagSet) out() io.Writer {
+// Out returns a non nil io.Writer for log output
+func (f *FlagSet) Out() io.Writer {
 	if f.Output == nil {
 		return os.Stderr
 	}
@@ -476,7 +477,7 @@ func (f *FlagSet) PrintDefaults() {
 				s += fmt.Sprintf(" (default %v)", flag.DefValue)
 			}
 		}
-		fmt.Fprint(f.out(), s, "\n")
+		fmt.Fprint(f.Out(), s, "\n")
 	})
 }
 
@@ -506,9 +507,9 @@ func PrintDefaults() {
 // defaultUsage is the default function to print a usage message.
 func (f *FlagSet) defaultUsage() {
 	if f.name == "" {
-		fmt.Fprintf(f.out(), "Usage:\n")
+		fmt.Fprintf(f.Out(), "Usage:\n")
 	} else {
-		fmt.Fprintf(f.out(), "Usage of %s:\n", f.name)
+		fmt.Fprintf(f.Out(), "Usage of %s:\n", f.name)
 	}
 	f.PrintDefaults()
 }
@@ -791,7 +792,7 @@ func (f *FlagSet) Var(value Value, name string, usage string) {
 		} else {
 			msg = fmt.Sprintf("%s flag redefined: %s", f.name, name)
 		}
-		fmt.Fprintln(f.out(), msg)
+		fmt.Fprintln(f.Out(), msg)
 		panic(msg) // Happens only if flags are declared with identical names
 	}
 	if f.formal == nil {
@@ -814,7 +815,7 @@ func Var(value Value, name string, usage string) {
 // returns the error.
 func (f *FlagSet) failf(format string, a ...interface{}) error {
 	err := fmt.Errorf(format, a...)
-	fmt.Fprintln(f.out(), err)
+	fmt.Fprintln(f.Out(), err)
 	f.usage()
 	return err
 }
