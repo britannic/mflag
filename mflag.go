@@ -283,7 +283,7 @@ type FlagSet struct {
 	formal        map[string]*Flag
 	args          []string // arguments after flags
 	errorHandling ErrorHandling
-	Output        io.Writer // nil means stderr; use Out() accessor
+	output        io.Writer // nil means stderr; use out() accessor
 }
 
 // A Flag represents the state of a flag.
@@ -311,18 +311,18 @@ func sortFlags(flags map[string]*Flag) []*Flag {
 	return result
 }
 
-// Out returns a non nil io.Writer for log output
-func (f *FlagSet) Out() io.Writer {
-	if f.Output == nil {
+// out returns a non nil io.Writer for log output
+func (f *FlagSet) out() io.Writer {
+	if f.output == nil {
 		return os.Stderr
 	}
-	return f.Output
+	return f.output
 }
 
 // SetOutput sets the destination for usage and error messages.
 // If output is nil, os.Stderr is used.
 func (f *FlagSet) SetOutput(output io.Writer) {
-	f.Output = output
+	f.output = output
 }
 
 // VisitAll visits the flags in lexicographical order, calling fn for each.
@@ -482,7 +482,7 @@ func (f *FlagSet) PrintDefaults() {
 					s += fmt.Sprintf(" (default %v)", flag.DefValue)
 				}
 			}
-			fmt.Fprint(f.Out(), s, "\n")
+			fmt.Fprint(f.out(), s, "\n")
 		}
 	})
 }
@@ -513,9 +513,9 @@ func PrintDefaults() {
 // defaultUsage is the default function to print a usage message.
 func (f *FlagSet) defaultUsage() {
 	if f.name == "" {
-		fmt.Fprintf(f.Out(), "Usage:\n")
+		fmt.Fprintf(f.out(), "Usage:\n")
 	} else {
-		fmt.Fprintf(f.Out(), "Usage of %s:\n", f.name)
+		fmt.Fprintf(f.out(), "Usage of %s:\n", f.name)
 	}
 	f.PrintDefaults()
 }
@@ -798,7 +798,7 @@ func (f *FlagSet) Var(value Value, name string, usage string, show bool) {
 		} else {
 			msg = fmt.Sprintf("%s flag redefined: %s", f.name, name)
 		}
-		fmt.Fprintln(f.Out(), msg)
+		fmt.Fprintln(f.out(), msg)
 		panic(msg) // Happens only if flags are declared with identical names
 	}
 	if f.formal == nil {
@@ -821,7 +821,7 @@ func Var(value Value, name string, usage string, show bool) {
 // returns the error.
 func (f *FlagSet) failf(format string, a ...interface{}) error {
 	err := fmt.Errorf(format, a...)
-	fmt.Fprintln(f.Out(), err)
+	fmt.Fprintln(f.out(), err)
 	f.usage()
 	return err
 }
