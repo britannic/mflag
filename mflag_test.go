@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/britannic/blacklist/internal/mflag"
+	. "github.com/britannic/mflag"
 )
 
 func boolString(s string) string {
@@ -26,14 +26,14 @@ func boolString(s string) string {
 
 func TestEverything(t *testing.T) {
 	ResetForTesting(nil)
-	Bool("test_bool", false, "bool value")
-	Int("test_int", 0, "int value")
-	Int64("test_int64", 0, "int64 value")
-	Uint("test_uint", 0, "uint value")
-	Uint64("test_uint64", 0, "uint64 value")
-	String("test_string", "0", "string value")
-	Float64("test_float64", 0, "float64 value")
-	Duration("test_duration", 0, "time.Duration value")
+	Bool("test_bool", false, "bool value", true)
+	Int("test_int", 0, "int value", true)
+	Int64("test_int64", 0, "int64 value", true)
+	Uint("test_uint", 0, "uint value", true)
+	Uint64("test_uint64", 0, "uint64 value", true)
+	String("test_string", "0", "string value", true)
+	Float64("test_float64", 0, "float64 value", true)
+	Duration("test_duration", 0, "time.Duration value", true)
 
 	m := make(map[string]*Flag)
 	desired := "0"
@@ -96,14 +96,14 @@ func TestEverything(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	ResetForTesting(nil)
-	Bool("test_bool", true, "bool value")
-	Int("test_int", 1, "int value")
-	Int64("test_int64", 2, "int64 value")
-	Uint("test_uint", 3, "uint value")
-	Uint64("test_uint64", 4, "uint64 value")
-	String("test_string", "5", "string value")
-	Float64("test_float64", 6, "float64 value")
-	Duration("test_duration", 7, "time.Duration value")
+	Bool("test_bool", true, "bool value", true)
+	Int("test_int", 1, "int value", true)
+	Int64("test_int64", 2, "int64 value", true)
+	Uint("test_uint", 3, "uint value", true)
+	Uint64("test_uint64", 4, "uint64 value", true)
+	String("test_string", "5", "string value", true)
+	Float64("test_float64", 6, "float64 value", true)
+	Duration("test_duration", 7, "time.Duration value", true)
 
 	visitor := func(f *Flag) {
 		if len(f.Name) > 5 && f.Name[0:5] == "test_" {
@@ -153,15 +153,15 @@ func testParse(f *FlagSet, t *testing.T) {
 	if f.Parsed() {
 		t.Error("f.Parse() = true before Parse")
 	}
-	boolFlag := f.Bool("bool", false, "bool value")
-	bool2Flag := f.Bool("bool2", false, "bool2 value")
-	intFlag := f.Int("int", 0, "int value")
-	int64Flag := f.Int64("int64", 0, "int64 value")
-	uintFlag := f.Uint("uint", 0, "uint value")
-	uint64Flag := f.Uint64("uint64", 0, "uint64 value")
-	stringFlag := f.String("string", "0", "string value")
-	float64Flag := f.Float64("float64", 0, "float64 value")
-	durationFlag := f.Duration("duration", 5*time.Second, "time.Duration value")
+	boolFlag := f.Bool("bool", false, "bool value", true)
+	bool2Flag := f.Bool("bool2", false, "bool2 value", true)
+	intFlag := f.Int("int", 0, "int value", true)
+	int64Flag := f.Int64("int64", 0, "int64 value", true)
+	uintFlag := f.Uint("uint", 0, "uint value", true)
+	uint64Flag := f.Uint64("uint64", 0, "uint64 value", true)
+	stringFlag := f.String("string", "0", "string value", true)
+	float64Flag := f.Float64("float64", 0, "float64 value", true)
+	durationFlag := f.Duration("duration", 5*time.Second, "time.Duration value", true)
 	extra := "one-extra-argument"
 	args := []string{
 		"-bool",
@@ -181,10 +181,10 @@ func testParse(f *FlagSet, t *testing.T) {
 	if !f.Parsed() {
 		t.Error("f.Parse() = false after Parse")
 	}
-	if *boolFlag != true {
+	if !*boolFlag {
 		t.Error("bool flag should be true, is ", *boolFlag)
 	}
-	if *bool2Flag != true {
+	if !*bool2Flag {
 		t.Error("bool2 flag should be true, is ", *bool2Flag)
 	}
 	if *intFlag != 22 {
@@ -240,7 +240,7 @@ func TestUserDefined(t *testing.T) {
 	var flags FlagSet
 	flags.Init("test", ContinueOnError)
 	var v flagVar
-	flags.Var(&v, "v", "usage")
+	flags.Var(&v, "v", "usage", true)
 	if err := flags.Parse([]string{"-v", "1", "-v", "2", "-v=3"}); err != nil {
 		t.Error(err)
 	}
@@ -288,7 +288,7 @@ func TestUserDefinedBool(t *testing.T) {
 	flags.Init("test", ContinueOnError)
 	var b boolFlagVar
 	var err error
-	flags.Var(&b, "b", "usage")
+	flags.Var(&b, "b", "usage", true)
 	if err = flags.Parse([]string{"-b", "-b", "-b", "-b=true", "-b=false", "-b", "barg", "-b"}); err != nil {
 		if b.count < 4 {
 			t.Error(err)
@@ -322,13 +322,13 @@ func TestChangingArgs(t *testing.T) {
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 	os.Args = []string{"cmd", "-before", "subcmd", "-after", "args"}
-	before := Bool("before", false, "")
+	before := Bool("before", false, "", true)
 	if err := CommandLine.Parse(os.Args[1:]); err != nil {
 		t.Fatal(err)
 	}
 	cmd := Arg(0)
 	os.Args = Args()
-	after := Bool("after", false, "")
+	after := Bool("after", false, "", true)
 	Parse()
 	args := Args()
 
@@ -343,7 +343,7 @@ func TestHelp(t *testing.T) {
 	fs := NewFlagSet("help test", ContinueOnError)
 	fs.Usage = func() { helpCalled = true }
 	var flag bool
-	fs.BoolVar(&flag, "flag", false, "regular flag")
+	fs.BoolVar(&flag, "flag", false, "regular flag", true)
 	// Regular flag invocation should work
 	err := fs.Parse([]string{"-flag=true"})
 	if err != nil {
@@ -369,7 +369,7 @@ func TestHelp(t *testing.T) {
 	}
 	// If we define a help flag, that should override.
 	var help bool
-	fs.BoolVar(&help, "help", false, "help flag")
+	fs.BoolVar(&help, "help", false, "help flag", true)
 	helpCalled = false
 	err = fs.Parse([]string{"-help"})
 	if err != nil {
@@ -402,15 +402,15 @@ func TestPrintDefaults(t *testing.T) {
 	fs := NewFlagSet("print defaults test", ContinueOnError)
 	var buf bytes.Buffer
 	fs.SetOutput(&buf)
-	fs.Bool("A", false, "for bootstrapping, allow 'any' type")
-	fs.Bool("Alongflagname", false, "disable bounds checking")
-	fs.Bool("C", true, "a boolean defaulting to true")
-	fs.String("D", "", "set relative `path` for local imports")
-	fs.Float64("F", 2.7, "a non-zero `number`")
-	fs.Float64("G", 0, "a float that defaults to zero")
-	fs.Int("N", 27, "a non-zero int")
-	fs.Int("Z", 0, "an int that defaults to zero")
-	fs.Duration("maxT", 0, "set `timeout` for dial")
+	fs.Bool("A", false, "for bootstrapping, allow 'any' type", true)
+	fs.Bool("Alongflagname", false, "disable bounds checking", true)
+	fs.Bool("C", true, "a boolean defaulting to true", true)
+	fs.String("D", "", "set relative `path` for local imports", true)
+	fs.Float64("F", 2.7, "a non-zero `number`", true)
+	fs.Float64("G", 0, "a float that defaults to zero", true)
+	fs.Int("N", 27, "a non-zero int", true)
+	fs.Int("Z", 0, "an int that defaults to zero", true)
+	fs.Duration("maxT", 0, "set `timeout` for dial", true)
 	fs.PrintDefaults()
 	got := buf.String()
 	if got != defaultOutput {
@@ -424,8 +424,8 @@ func TestIntFlagOverflow(t *testing.T) {
 		return
 	}
 	ResetForTesting(nil)
-	Int("i", 0, "")
-	Uint("u", 0, "")
+	Int("i", 0, "", true)
+	Uint("u", 0, "", true)
 	if err := Set("i", "2147483648"); err == nil {
 		t.Error("unexpected success setting Int")
 	}

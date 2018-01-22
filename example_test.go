@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/britannic/blacklist/internal/mflag"
+	"github.com/britannic/mflag"
 )
 
 // Example 1: A single string flag called "species" with default value "gopher".
-var species = mflag.String("species", "gopher", "the species we are studying")
+var species = mflag.String("species", "gopher", "the species we are studying", true)
 
 // Example 2: Two flags sharing a variable, so we can have a shorthand.
 // The order of initialization is undefined, so make sure both use the
@@ -27,8 +27,8 @@ func init() {
 		defaultGopher = "pocket"
 		usage         = "the variety of gopher"
 	)
-	mflag.StringVar(&gopherType, "gopher_type", defaultGopher, usage)
-	mflag.StringVar(&gopherType, "g", defaultGopher, usage+" (shorthand)")
+	mflag.StringVar(&gopherType, "gopher_type", defaultGopher, usage, true)
+	mflag.StringVar(&gopherType, "g", defaultGopher, usage+" (shorthand)", true)
 }
 
 // Example 3: A user-defined flag type, a slice of durations.
@@ -71,7 +71,7 @@ var intervalFlag interval
 func init() {
 	// Tie the command-line flag to the intervalFlag variable and
 	// set a usage message.
-	mflag.Var(&intervalFlag, "deltaT", "comma-separated list of intervals to use between events")
+	mflag.Var(&intervalFlag, "deltaT", "comma-separated list of intervals to use between events", true)
 }
 
 func Example() {
